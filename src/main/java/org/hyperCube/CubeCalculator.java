@@ -58,7 +58,7 @@ public class CubeCalculator {
         return endErg;
     }
 
-    public static Matrix getShadow(Matrix vector, int toDimension, int distance){
+    public static Matrix getShadow(Matrix vector, int toDimension, double distance){
         Matrix erg = vector.copy();
         for(int i = vector.rows(); i > toDimension; i--){
             erg = MatrixCalc.multiply(createOneDimDownMatrix(1.0/(distance - erg.get(i-1)), i), erg);

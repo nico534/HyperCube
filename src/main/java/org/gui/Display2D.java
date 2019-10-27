@@ -1,10 +1,10 @@
 package org.gui;
 
-
-import com.sun.javafx.geom.Matrix3f;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.image.PixelWriter;
 import javafx.scene.paint.Color;
+import org.hyperCube.KompositumCube.Construct;
 import org.hyperCube.KompositumCube.Line;
 
 public class Display2D extends Canvas {
@@ -23,8 +23,6 @@ public class Display2D extends Canvas {
 
     public void drawAllLines(Line[] toDraw){
         for(Line line: toDraw){
-            //System.out.println((line.getP1().get(0) + getWidth()/2) + "|" +  (line.getP1().get(1) + getHeight()/2) + "  " + (line.getP2().get(0) + getWidth()/2) + "|" + (line.getP2().get(1) + getHeight()/2));
-            //System.out.println(getWidth()/2 + "|" +  getHeight()/2);
             gc.strokeLine(line.getP1().get(0) + getWidth()/2, line.getP1().get(1) + getHeight()/2,
                          line.getP2().get(0) + getWidth()/2, line.getP2().get(1) + getHeight()/2);
         }

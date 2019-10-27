@@ -1,13 +1,9 @@
 package org.hyperCube.KompositumCube;
 
-
-import matrixLibrary.matrix.DeleteLinesFormula;
 import matrixLibrary.matrix.Matrix;
 import matrixLibrary.matrix.RotateVectorFormula;
 import matrixLibrary.matrix.ShortenVectorToSizeFormula;
-import matrixLibrary.utils.MatrixCalc;
 import matrixLibrary.utils.VectorCalc;
-import org.hyperCube.CubeCalculator;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -125,7 +121,18 @@ public class Construct implements Element {
         return getLines.toArray(new Line[0]);
     }
 
-    private void updateFaces(){
+    public void updateFaces(){
+        if(this.dimension < 3){
+            updateCubeFaces();
+            return;
+        }
+        Construct[] allCubes = get(3);
+        for(Construct c: allCubes){
+            c.updateCubeFaces();
+        }
+    }
+
+    private void updateCubeFaces(){
         Construct[] faces = get(2);
         int counter = 0;
         for(Construct f: faces){
@@ -199,6 +206,9 @@ public class Construct implements Element {
 
         endPoint1.addFormula(new ShortenVectorToSizeFormula(3));
         endPoint2.addFormula(new ShortenVectorToSizeFormula(3));
+
+        endPoint1 = VectorCalc.getNormalizeVector(endPoint1);
+        endPoint2 = VectorCalc.getNormalizeVector(endPoint2);
 
         return VectorCalc.getNormalizeVector(VectorCalc.crossProduct(endPoint1, endPoint2));
     }

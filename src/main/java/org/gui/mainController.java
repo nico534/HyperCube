@@ -49,13 +49,44 @@ public class mainController implements Initializable {
     private void createSliders(){
         sliders = new Slider[CubeCalculator.calcRotateAngels(dimensions)];
         labels = new Label[sliders.length];
+        Slider scale = new Slider();
+        Label scaleL = new Label();
+
+        rotateBox.getChildren().add(scaleL);
+        rotateBox.getChildren().add(scale);
+
+        scale.setMin(1);
+        scale.setMax(3000);
+        scale.setValue(500);
+        scaleL.setText("Scale: 500");
+        scale.valueProperty().addListener((obs, oldval, newVal) ->{
+            scale.setValue(newVal.intValue());
+            scaleL.setText("Scale: " + newVal.intValue());
+            HyperCube.scale = newVal.intValue();
+        });
+
+        Slider distance = new Slider();
+        Label distanceL = new Label();
+
+        rotateBox.getChildren().add(distanceL);
+        rotateBox.getChildren().add(distance);
+
+        distance.setMin(1);
+        distance.setMax(5);
+        distance.setValue(2);
+        distanceL.setText("Distance: 2.0");
+        distance.valueProperty().addListener((obs, oldval, newVal) ->{
+            distance.setValue(newVal.doubleValue());
+            distanceL.setText("Distance: " + newVal.doubleValue());
+            cam.getVisionAxes().set(2, newVal.doubleValue());
+        });
         int counter = 0;
         for(int i = 0; i < dimensions - 1; i++){
             for(int j = i+1; j < dimensions; j++){
                 //System.out.println(i + "|" + j);
                 sliders[counter] = new Slider();
                 labels[counter] = new Label();
-                labels[counter].setText(i + "|" + j);
+                labels[counter].setText("Axes " +i + "|" + j+ " = 0.0");
                 rotateBox.getChildren().add(labels[counter]);
                 rotateBox.getChildren().add(sliders[counter]);
                 int finalCounter = counter;

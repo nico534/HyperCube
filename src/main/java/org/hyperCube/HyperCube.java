@@ -7,12 +7,10 @@ import org.hyperCube.KompositumCube.Construct;
 import org.hyperCube.KompositumCube.Line;
 
 import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Set;
 
 public class HyperCube {
-    private static int distance = 2;
-    private static int scale = 500;
+    //private static int distance = 2;
+    public static int scale = 500;
     public Construct cube;
     private int dimensions;
 
@@ -56,7 +54,7 @@ public class HyperCube {
         for(Matrix p: allPoints){
             // normalize vector length
             p.multiplyScalar(0.5);
-            Matrix temp = CubeCalculator.getShadow(p, 3, distance);
+            Matrix temp = CubeCalculator.getShadow(p, 3, VectorCalc.getLength(cam.getVisionAxes()));
             p.copyAll(temp);
         }
         Construct[] allFaces = workerCube.get(2);
@@ -80,8 +78,8 @@ public class HyperCube {
             }
         }
         for (Line l: toPrintLines){
-            l.setP1(CubeCalculator.getShadow(l.getP1(), 2, distance));
-            l.setP2(CubeCalculator.getShadow(l.getP2(), 2, distance));
+            l.setP1(CubeCalculator.getShadow(l.getP1(), 2, VectorCalc.getLength(cam.getVisionAxes())));
+            l.setP2(CubeCalculator.getShadow(l.getP2(), 2, VectorCalc.getLength(cam.getVisionAxes())));
             l.getP1().multiplyScalar(scale);
             l.getP2().multiplyScalar(scale);
         }
