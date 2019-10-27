@@ -1,5 +1,7 @@
 package org.hyperCube;
 
+import org.hyperCube.KompositumCube.Construct;
+
 public class HyperCube {
     public Construct cube;
 

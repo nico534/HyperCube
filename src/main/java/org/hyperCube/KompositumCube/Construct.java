@@ -1,21 +1,15 @@
-package org.hyperCube;
+package org.hyperCube.KompositumCube;
 
 
 import matrixLibrary.matrix.Matrix;
-
 import java.util.ArrayList;
+import java.util.Arrays;
 
-public class Construct {
-    private Construct[] constructs;
+public class Construct implements Element {
+    private Element[] constructs;
     private int dimension;
-    private Matrix[] points;
 
     private int[] ignoreValues = new int[0];
-
-    public Construct(Construct[] constructs, int dimension){
-        this.constructs = constructs;
-        this.dimension = dimension;
-    }
 
     private Construct(Matrix[] pointsOfTheConstruct, int dimension, int[] ignoreValues){
         this.ignoreValues = ignoreValues;
@@ -29,8 +23,8 @@ public class Construct {
 
     private void init(Matrix[] pointsOfTheConstruct, int dimension){
         this.dimension = dimension;
-        constructs = new Construct[2 * this.dimension];
-        if(dimension > 1){
+        if(dimension > 2){
+            constructs = new Construct[2 * this.dimension];
             int counter = 0;
             for(int i = 0; i < pointsOfTheConstruct[0].size(); i++){
                 if(inIgnored(i)){
@@ -44,7 +38,19 @@ public class Construct {
                 counter++;
             }
         }else {
-            this.points = pointsOfTheConstruct;
+            constructs = new Line[2 * this.dimension];
+            int counter = 0;
+            for(int i = 0; i < pointsOfTheConstruct[0].size(); i++){
+                if(inIgnored(i)){
+                    continue;
+                }
+                Matrix[] newPoints = findTogetherAt(i, 1, pointsOfTheConstruct);
+                Matrix[] newPoint2 = findTogetherAt(i, -1, pointsOfTheConstruct);
+                constructs[counter] = new Line(newPoints,  adToIgnore(i));
+                counter++;
+                constructs[counter] = new Line(newPoint2, adToIgnore(i));
+                counter++;
+            }
         }
     }
 
@@ -65,9 +71,7 @@ public class Construct {
 
     private int[] adToIgnore(int newIgnoreValue){
         int[] newIgnore = new int[this.ignoreValues.length + 1];
-        for(int i = 0; i < this.ignoreValues.length; i++){
-            newIgnore[i] = this.ignoreValues[i];
-        }
+        System.arraycopy(this.ignoreValues, 0, newIgnore, 0, this.ignoreValues.length);
         newIgnore[newIgnore.length-1] = newIgnoreValue;
         return newIgnore;
     }
@@ -81,57 +85,48 @@ public class Construct {
         return false;
     }
 
-    public Construct[] get(int dimension){
+    public Element[] get(int dimension){
         if(dimension == this.dimension){
-            return constructs;
+            return new Construct[]{this};
         }
-        ArrayList<Construct> getConstructs = new ArrayList<>();
-        for(Construct c: constructs){
-            Construct[] newConstructs = c.get(dimension);
-            for(Construct k: newConstructs){
-                getConstructs.add(k);
-            }
+        ArrayList<Element> getConstructs = new ArrayList<>();
+        for(Element c: constructs){
+            Element[] newConstructs = c.get(dimension);
+            getConstructs.addAll(Arrays.asList(newConstructs));
         }
-        return getConstructs.toArray(new Construct[0]);
+        return getConstructs.toArray(new Element[0]);
     }
 
-    public Matrix[] getPoints(){
-        if(dimension == 1){
-            return this.points;
+    public Line[] getLines(){
+        ArrayList<Line> getLines = new ArrayList<>();
+        for(Element c: constructs){
+            Line[] newLines = c.getLines();
+            getLines.addAll(Arrays.asList(newLines));
         }
-        ArrayList<Matrix> getPoints = new ArrayList<>();
-        for(Construct c: constructs){
-            Matrix[] newPoints = c.getPoints();
-            for(Matrix m: newPoints){
-                getPoints.add(m);
-            }
-        }
-        return getPoints.toArray(new Matrix[0]);
+        return getLines.toArray(new Line[0]);
     }
 
     /**
      * magically it sets the clockwise draw direction of the faces.
      */
     private void updateFaces(){
-        Construct[] faces = get(3);
-        for(Construct f: faces){
-            f.changeConstruct(0, 2);
-            f.changeConstruct(2, 3);
-            Construct[] lines = f.get(2);
-            lines[2].changePoints();
-            lines[3].changePoints();
+        Element[] faces = get(3);
+        for(Element f: faces){
+            f.changeElement(0, 2);
+            f.changeElement(2, 3);
+            Element[] lines = f.get(2);
+            lines[2].changeElement();
+            lines[3].changeElement();
         }
     }
 
-    private void changeConstruct(int c1, int c2){
-        Construct save = constructs[c1];
+    public void changeElement(int c1, int c2){
+        Element save = constructs[c1];
         constructs[c1] = constructs[c2];
         constructs[c2] = save;
     }
 
-    private void changePoints(){
-        Matrix save = points[0];
-        points[0] = points[1];
-        points[1] = save;
+    @Override
+    public void changeElement() {
     }
 }

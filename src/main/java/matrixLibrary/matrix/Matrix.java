@@ -185,8 +185,7 @@ public class Matrix {
                 }
             }
         }
-        System.out.println(")");
-        printSeparator("---------");
+        System.out.print(")");
     }
 
     /**

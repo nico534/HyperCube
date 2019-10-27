@@ -1,6 +1,9 @@
 package org.hyperCube;
 
 import matrixLibrary.matrix.Matrix;
+import org.hyperCube.KompositumCube.Construct;
+import org.hyperCube.KompositumCube.Element;
+import org.hyperCube.KompositumCube.Line;
 
 public class testMain {
 
@@ -8,14 +11,13 @@ public class testMain {
         Matrix[] cube = CubeCalculator.createBox(3);
         Construct c = new Construct(cube, 3);
         System.out.println();
-        Construct[] dim2 = c.get(3);
+        Element[] dim2 = c.get(2);
 
         for(int i = 0; i < dim2.length; i++){
             System.out.println("Face: " + i);
-            Matrix[] allPoints = dim2[i].getPoints();
-            for(Matrix p: allPoints){
-                p.setShownNumbers(3);
-                p.printVector();
+            Line[] allPoints = dim2[i].getLines();
+            for(Line p: allPoints){
+                p.printLine(5, 3);
             }
         }
     }

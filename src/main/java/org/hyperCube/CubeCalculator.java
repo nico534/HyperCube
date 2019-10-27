@@ -1,6 +1,7 @@
 package org.hyperCube;
 
 import matrixLibrary.matrix.Matrix;
+import org.hyperCube.KompositumCube.Construct;
 
 public class CubeCalculator {
 
