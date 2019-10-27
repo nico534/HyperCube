@@ -1,24 +1,40 @@
 package org.hyperCube.KompositumCube;
 
 
+import matrixLibrary.matrix.DeleteLinesFormula;
 import matrixLibrary.matrix.Matrix;
+import matrixLibrary.matrix.RotateVectorFormula;
+import matrixLibrary.matrix.ShortenVectorToSizeFormula;
+import matrixLibrary.utils.MatrixCalc;
+import matrixLibrary.utils.VectorCalc;
+import org.hyperCube.CubeCalculator;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 
 public class Construct implements Element {
     private Element[] constructs;
     private int dimension;
+    Matrix[] allPoints;
 
     private int[] ignoreValues = new int[0];
+
+    public Construct(Matrix[] pointsOfTheConstruct, int dimension){
+        init(pointsOfTheConstruct, dimension);
+        this.allPoints = pointsOfTheConstruct;
+        updateFaces();
+    }
+
+    private Construct(Element[] elements, int dimension, int[] ignoreValues){
+        this.constructs = elements;
+        this.dimension = dimension;
+        this.ignoreValues = ignoreValues;
+    }
 
     private Construct(Matrix[] pointsOfTheConstruct, int dimension, int[] ignoreValues){
         this.ignoreValues = ignoreValues;
         init(pointsOfTheConstruct, dimension);
-    }
-
-    public Construct(Matrix[] pointsOfTheConstruct, int dimension){
-        init(pointsOfTheConstruct, dimension);
-        updateFaces();
+        this.allPoints = pointsOfTheConstruct;
     }
 
     private void init(Matrix[] pointsOfTheConstruct, int dimension){
@@ -85,16 +101,19 @@ public class Construct implements Element {
         return false;
     }
 
-    public Element[] get(int dimension){
+    public Construct[] get(int dimension){
+        if(dimension < 2){
+            throw new IndexOutOfBoundsException("there are no constructs under dim 2.");
+        }
         if(dimension == this.dimension){
             return new Construct[]{this};
         }
-        ArrayList<Element> getConstructs = new ArrayList<>();
+        ArrayList<Construct> getConstructs = new ArrayList<>();
         for(Element c: constructs){
-            Element[] newConstructs = c.get(dimension);
+            Construct[] newConstructs = c.get(dimension);
             getConstructs.addAll(Arrays.asList(newConstructs));
         }
-        return getConstructs.toArray(new Element[0]);
+        return getConstructs.toArray(new Construct[0]);
     }
 
     public Line[] getLines(){
@@ -106,17 +125,53 @@ public class Construct implements Element {
         return getLines.toArray(new Line[0]);
     }
 
-    /**
-     * magically it sets the clockwise draw direction of the faces.
-     */
     private void updateFaces(){
-        Element[] faces = get(3);
-        for(Element f: faces){
+        Construct[] faces = get(2);
+        int counter = 0;
+        for(Construct f: faces){
             f.changeElement(0, 2);
             f.changeElement(2, 3);
-            Element[] lines = f.get(2);
+            Line[] lines = f.getLines();
             lines[2].changeElement();
             lines[3].changeElement();
+            if(counter == 1 || counter == 2 || counter == 5){
+                lines[0].changeElement();
+                lines[1].changeElement();
+                lines[2].changeElement();
+                lines[3].changeElement();
+                f.changeElement(0,3);
+                f.changeElement(1,2);
+            }
+            counter++;
+        }
+    }
+
+    private double getCommonValue(Construct f){
+        int[] pointCounter = new int[f.allPoints[0].size()];
+        for(int i = 0; i < f.allPoints.length; i++){
+            for(int j = 0; j < f.allPoints[i].size(); j++){
+                pointCounter[j] += f.allPoints[i].get(j);
+            }
+        }
+        for(int i = 0; i < pointCounter.length; i++){
+            if(Math.abs(pointCounter[i]) == f.allPoints.length && !inIgnored(i)){
+                return f.allPoints[0].get(i);
+            }
+        }
+        return 0;
+    }
+
+    public Matrix[] getAllPoints(){
+        return this.allPoints;
+    }
+
+    private void setAllPoints(Matrix[] newAllPoints){
+        this.allPoints = newAllPoints;
+    }
+
+    public void rotate(Matrix rotationMatrix){
+        for(int i = 0; i < allPoints.length; i++){
+            allPoints[i].addFormula(new RotateVectorFormula(rotationMatrix));
         }
     }
 
@@ -126,7 +181,48 @@ public class Construct implements Element {
         constructs[c2] = save;
     }
 
-    @Override
-    public void changeElement() {
+    public Matrix calculateNormalVector(){
+        Line[] allLines = this.getLines();
+        if(allLines.length != 4){
+            System.out.println("you down't use a Face");
+            return null;
+        }
+        Line l1 = allLines[0];
+        Line l2 = allLines[1];
+
+        Matrix startPoint = l1.getP1();
+        Matrix endPoint1 = l1.getP2().copy();
+        Matrix endPoint2 = l2.getP2().copy();
+
+        endPoint1.subtract(startPoint);
+        endPoint2.subtract(startPoint);
+
+        endPoint1.addFormula(new ShortenVectorToSizeFormula(3));
+        endPoint2.addFormula(new ShortenVectorToSizeFormula(3));
+
+        return VectorCalc.getNormalizeVector(VectorCalc.crossProduct(endPoint1, endPoint2));
+    }
+
+    public Construct clone(ArrayList<Matrix> allMatrices){
+        Element[] newElements = new Element[constructs.length];
+        for(int i = 0; i < constructs.length; i++){
+            newElements[i] = this.constructs[i].clone(allMatrices);
+        }
+        return new Construct(newElements, this.dimension, this.ignoreValues);
+    }
+
+    public Construct clone(){
+        Element[] newElements = new Element[constructs.length];
+        ArrayList<Matrix> cloneMtx = new ArrayList<>();
+        for(int i = 0; i < this.allPoints.length; i++){
+            cloneMtx.add(this.allPoints[i].copy());
+        }
+        for(int i = 0; i < constructs.length; i++){
+            newElements[i] = this.constructs[i].clone(cloneMtx);
+        }
+
+        Construct newC = new Construct(newElements, this.dimension, this.ignoreValues);
+        newC.setAllPoints(cloneMtx.toArray(new Matrix[0]));
+        return newC;
     }
 }

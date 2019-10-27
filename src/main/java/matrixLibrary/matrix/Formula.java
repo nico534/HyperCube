@@ -1,4 +1,4 @@
-package matrixLibrary.formula;
+package matrixLibrary.matrix;
 
 import matrixLibrary.matrix.Matrix;
 

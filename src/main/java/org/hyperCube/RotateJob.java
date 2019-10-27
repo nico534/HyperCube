@@ -17,7 +17,7 @@ public class RotateJob {
         this.rotate = value != 0;
     }
 
-    public boolean getRotate(){
+    public boolean getIsRotating(){
         return this.rotate;
     }
 

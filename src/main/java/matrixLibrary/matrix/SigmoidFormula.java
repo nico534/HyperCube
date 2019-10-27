@@ -1,6 +1,4 @@
-package matrixLibrary.formula;
-
-import matrixLibrary.matrix.Matrix;
+package matrixLibrary.matrix;
 
 public class SigmoidFormula implements Formula {
     @Override

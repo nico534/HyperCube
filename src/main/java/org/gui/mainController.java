@@ -1,10 +1,15 @@
 package org.gui;
 
+import javafx.animation.AnimationTimer;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Label;
 import javafx.scene.control.Slider;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
+import javafx.util.Duration;
+import matrixLibrary.matrix.Matrix;
 import org.hyperCube.CubeCalculator;
 import org.hyperCube.HyperCube;
 import java.net.URL;
@@ -18,17 +23,27 @@ public class mainController implements Initializable {
     private Label[] labels;
 
     private Display2D display;
+    private Camera3D cam;
     private int dimensions;
 
     private HyperCube cube;
 
+    private AnimationTimer reDraw;
+
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+        Matrix camMatrix = new Matrix(3);
+        camMatrix.set(2, 2);
+        cam = new Camera3D(camMatrix);
+
         dimensions = 3;
         cube = new HyperCube(dimensions);
         display = new Display2D(renderPane.getPrefWidth(), renderPane.getPrefHeight());
         renderPane.getChildren().add(display);
         createSliders();
+        display.reset();
+        display.drawAllLines(cube.getToDrawLines(cam));
+        startDrawRoutine();
     }
 
     private void createSliders(){
@@ -56,5 +71,18 @@ public class mainController implements Initializable {
                 counter++;
             }
         }
+    }
+
+    private void startDrawRoutine(){
+        reDraw = new AnimationTimer(){
+
+            @Override
+            public void handle(long l) {
+                cube.rotate();
+                display.reset();
+                display.drawAllLines(cube.getToDrawLines(cam));
+            }
+        };
+        reDraw.start();
     }
 }

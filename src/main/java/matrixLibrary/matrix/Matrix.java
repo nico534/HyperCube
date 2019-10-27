@@ -1,6 +1,5 @@
 package matrixLibrary.matrix;
 
-import matrixLibrary.formula.Formula;
 import org.apache.commons.lang3.ArrayUtils;
 
 /**
@@ -9,7 +8,6 @@ import org.apache.commons.lang3.ArrayUtils;
 public class Matrix {
     // the max distance value to say the value is equal
     private double lambda = 0.000001f;
-
     private double[] matrix;
     private int rows;
     private int cols;
@@ -325,7 +323,7 @@ public class Matrix {
             }
             return col * this.cols + row % this.cols;
         } else {
-            if (col > (this.cols - 1) || row > (this.rows - 1) || col < 0 || row < 0) {
+            if (col > (this.cols) || row > (this.rows) || col < 0 || row < 0) {
                 throw new IndexOutOfBoundsException("(" + row + "," + col + ") out of bounds for matrix (" + rows() + "," + cols() + ").");
             }
             return row * this.cols + col % this.cols;
@@ -490,7 +488,7 @@ public class Matrix {
             return false;
         }
         for (int i = 0; i < this.rows(); i++) {
-            for (int j = 0; j < this.rows(); j++) {
+            for (int j = 0; j < this.cols(); j++) {
                 if (Math.abs(this.get(i, j) - toCompare.get(i, j)) > lambda) {
                     return false;
                 }
@@ -498,5 +496,20 @@ public class Matrix {
 
         }
         return true;
+    }
+
+    protected double[] getArray(){
+        return this.matrix;
+    }
+
+    public void copyAll(Matrix mtx){
+        this.matrix = mtx.matrix;
+        this.rows = mtx.rows;
+        this.cols = mtx.cols;
+        this.transpose = mtx.transpose;
+    }
+
+    protected void setMatrixArray(double[] newMatrix){
+        this.matrix = newMatrix;
     }
 }

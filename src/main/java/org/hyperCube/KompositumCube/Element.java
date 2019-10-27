@@ -1,10 +1,13 @@
 package org.hyperCube.KompositumCube;
 
+import matrixLibrary.matrix.Matrix;
+
+import java.util.ArrayList;
+
 public interface Element {
 
-    Element[] get(int dimension);
-    public Line[] getLines();
-    void changeElement(int e1, int e2);
-    void changeElement();
+    Construct[] get(int dimension);
+    Line[] getLines();
+    Element clone(ArrayList<Matrix> allMatrices);
 
 }
