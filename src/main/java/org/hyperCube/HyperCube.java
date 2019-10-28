@@ -1,9 +1,12 @@
 package org.hyperCube;
 
 import matrixLibrary.matrix.Matrix;
+import matrixLibrary.utils.MatrixCalc;
 import matrixLibrary.utils.VectorCalc;
 import org.gui.Camera3D;
 import org.hyperCube.KompositumCube.Construct;
+import org.hyperCube.KompositumCube.Element;
+import org.hyperCube.KompositumCube.Face;
 import org.hyperCube.KompositumCube.Line;
 
 import java.util.ArrayList;
@@ -36,11 +39,17 @@ public class HyperCube {
     }
 
     public void rotate(){
+        boolean isRotating = false;
+        Matrix allRotations = MatrixCalc.getIdentityMatrix(this.dimensions);
         for(RotateJob r: this.rotateJobs){
             if(r.getIsRotating()){
                 Matrix rotationMatrix = CubeCalculator.calcRotationMatrix(r.getAxes1(), r.getAxes2(), r.getRotateValue(), dimensions);
-                cube.rotate(rotationMatrix);
+                isRotating = true;
+                allRotations = MatrixCalc.multiply(allRotations, rotationMatrix);
             }
+        }
+        if(isRotating) {
+            cube.rotate(allRotations);
         }
     }
 
@@ -84,5 +93,69 @@ public class HyperCube {
             l.getP2().multiplyScalar(scale);
         }
         return toPrintLines.toArray(new Line[0]);
+    }
+
+    public Face[] getToDrawFaces(Camera3D cam) {
+        Construct workerCube = cube.clone();
+        Matrix[] allPoints = workerCube.getAllPoints();
+        for(Matrix p: allPoints){
+            // normalize vector length
+            p.multiplyScalar(0.5);
+            Matrix temp = CubeCalculator.getShadow(p, 3, VectorCalc.getLength(cam.getVisionAxes()));
+            p.copyAll(temp);
+        }
+        Construct[] allFaces = workerCube.get(2);
+        ArrayList<Matrix> allPointsToDraw = new ArrayList<>();
+        ArrayList<Face> allDrownFaces = new ArrayList<>();
+        for(Construct f: allFaces){
+            Line[] allLines = f.getLines();
+            Matrix onePoint = allLines[0].getP1().copy();
+            onePoint.subtract(cam.getVisionAxes());
+            Matrix normal = f.calculateNormalVector();
+            if(VectorCalc.dotProduct(normal,onePoint) <= 0) {
+                Line[] linesOfTheFace = f.getLines();
+                allDrownFaces.add(new Face(linesOfTheFace[0], linesOfTheFace[1]));
+                allDrownFaces.add(new Face(linesOfTheFace[2], linesOfTheFace[3]));
+            }
+        }
+
+        for(Face f: allDrownFaces){
+            f.calc2DShadow(cam);
+            f.scale(scale);
+        }
+
+        return allDrownFaces.toArray(new Face[0]);
+    }
+
+    public Face[] getToDrawFaces(Camera3D cam , Matrix light) {
+        Construct workerCube = cube.clone();
+        Matrix[] allPoints = workerCube.getAllPoints();
+        for(Matrix p: allPoints){
+            // normalize vector length
+            p.multiplyScalar(0.5);
+            Matrix temp = CubeCalculator.getShadow(p, 3, VectorCalc.getLength(cam.getVisionAxes()));
+            p.copyAll(temp);
+        }
+        Construct[] allFaces = workerCube.get(2);
+        ArrayList<Matrix> allPointsToDraw = new ArrayList<>();
+        ArrayList<Face> allDrownFaces = new ArrayList<>();
+        for(Construct f: allFaces){
+            Line[] allLines = f.getLines();
+            Matrix onePoint = allLines[0].getP1().copy();
+            onePoint.subtract(cam.getVisionAxes());
+            Matrix normal = f.calculateNormalVector();
+            if(VectorCalc.dotProduct(normal,onePoint) <= 0) {
+                Line[] linesOfTheFace = f.getLines();
+                allDrownFaces.add(new Face(linesOfTheFace[0], linesOfTheFace[1], normal));
+                allDrownFaces.add(new Face(linesOfTheFace[2], linesOfTheFace[3], normal));
+            }
+        }
+
+        for(Face f: allDrownFaces){
+            f.calc2DShadow(cam);
+            f.scale(scale);
+            f.calcLightIntensity(light);
+        }
+        return allDrownFaces.toArray(new Face[0]);
     }
 }

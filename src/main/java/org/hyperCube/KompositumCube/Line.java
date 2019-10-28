@@ -10,7 +10,7 @@ public class Line implements Element {
 
     private int[] ignoreValues;
 
-    private Line(Matrix p1, Matrix p2){
+    protected Line(Matrix p1, Matrix p2){
         this.p1 = p1;
         this.p2 = p2;
     }

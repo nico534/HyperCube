@@ -209,8 +209,11 @@ public class Construct implements Element {
 
         endPoint1 = VectorCalc.getNormalizeVector(endPoint1);
         endPoint2 = VectorCalc.getNormalizeVector(endPoint2);
-
-        return VectorCalc.getNormalizeVector(VectorCalc.crossProduct(endPoint1, endPoint2));
+        Matrix crossProd = VectorCalc.crossProduct(endPoint1, endPoint2);
+        if(VectorCalc.getLength(crossProd) == 0){
+            return crossProd;
+        }
+        return VectorCalc.getNormalizeVector(crossProd);
     }
 
     public Construct clone(ArrayList<Matrix> allMatrices){

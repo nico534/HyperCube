@@ -10,13 +10,11 @@ import org.hyperCube.KompositumCube.Line;
 public class testMain {
 
     public static void main(String[] args) {
-        HyperCube c = new HyperCube(3);
+        HyperCube c = new HyperCube(5);
         Matrix camMatrix = new Matrix(3);
         camMatrix.set(0, -2);
         Camera3D cam = new Camera3D(camMatrix);
-        Display2D d = new Display2D(600, 600);
-        Line[] drawLines = c.getToDrawLines(cam);
-        d.drawAllLines(drawLines);
+        c.getToDrawLines(cam);
         /*
         Construct cube = CubeCalculator.createCube(3);
 

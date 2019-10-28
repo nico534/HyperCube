@@ -12,9 +12,9 @@ public class Main extends Application {
     }
     @Override
     public void start(Stage stage) throws Exception {
-        stage.setTitle("Hyper Cube / Tesseract");
-        Parent mainWindow = new FXMLLoader(getClass().getResource("mainScene.fxml")).load();
-        stage.setScene(new Scene(mainWindow));
+        //stage.setTitle("Hyper Cube / Tesseract");
+        //Parent mainWindow = new FXMLLoader(getClass().getResource("mainScene.fxml")).load();
+        stage.setScene(new Scene(new mainController()));
         stage.show();
     }
 }

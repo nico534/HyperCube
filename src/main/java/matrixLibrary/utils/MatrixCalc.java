@@ -179,4 +179,12 @@ public class MatrixCalc {
         }
         return null;
     }
+
+    public static Matrix getIdentityMatrix(int n){
+        Matrix identity = new Matrix(n,n);
+        for(int i = 0; i < n; i++){
+            identity.set(i,i,1);
+        }
+        return identity;
+    }
 }

@@ -1,49 +1,59 @@
 package org.gui;
 
 import javafx.animation.AnimationTimer;
-import javafx.animation.KeyFrame;
-import javafx.animation.Timeline;
-import javafx.fxml.Initializable;
 import javafx.scene.control.Label;
 import javafx.scene.control.Slider;
-import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
-import javafx.util.Duration;
 import matrixLibrary.matrix.Matrix;
 import org.hyperCube.CubeCalculator;
 import org.hyperCube.HyperCube;
-import java.net.URL;
-import java.util.ResourceBundle;
 
-public class mainController implements Initializable {
-    public AnchorPane renderPane;
-    public VBox rotateBox;
+public class mainController extends BorderPane {
+    private VBox rotateBox;
 
     private Slider[] sliders;
     private Label[] labels;
 
     private Display2D display;
     private Camera3D cam;
+    private Matrix light;
     private int dimensions;
 
     private HyperCube cube;
 
     private AnimationTimer reDraw;
 
-    @Override
-    public void initialize(URL url, ResourceBundle resourceBundle) {
+    public mainController(){
+        setPrefHeight(600);
+        setPrefWidth(800);
+
         Matrix camMatrix = new Matrix(3);
         camMatrix.set(2, 2);
         cam = new Camera3D(camMatrix);
+        light = new Matrix(3);
+        light.set(2, 1);
 
-        dimensions = 3;
+        dimensions = 5;
         cube = new HyperCube(dimensions);
-        display = new Display2D(renderPane.getPrefWidth(), renderPane.getPrefHeight());
-        renderPane.getChildren().add(display);
+        display = new Display2D(600, 600);
+        setCenter(display);
+        this.widthProperty().addListener(e -> {
+            display.setWidth(getWidth() - 200);
+        });
+        this.heightProperty().addListener(e -> {
+            display.setHeight(getHeight());
+        });
+        rotateBox = new VBox();
+        setLeft(rotateBox);
+        rotateBox.setPrefWidth(200);
         createSliders();
         display.reset();
-        display.drawAllLines(cube.getToDrawLines(cam));
-        startDrawRoutine();
+        //display.drawAllLines(cube.getToDrawLines(cam));
+        //display.drawAllFaces(cube.getToDrawFaces(cam, light));
+
+        startFaceDrawRoutine();
+        //startLineDrawRoutine();
     }
 
     private void createSliders(){
@@ -104,7 +114,7 @@ public class mainController implements Initializable {
         }
     }
 
-    private void startDrawRoutine(){
+    private void startLineDrawRoutine(){
         reDraw = new AnimationTimer(){
 
             @Override
@@ -112,6 +122,19 @@ public class mainController implements Initializable {
                 cube.rotate();
                 display.reset();
                 display.drawAllLines(cube.getToDrawLines(cam));
+            }
+        };
+        reDraw.start();
+    }
+
+    private void startFaceDrawRoutine(){
+        reDraw = new AnimationTimer(){
+
+            @Override
+            public void handle(long l) {
+                cube.rotate();
+                display.reset();
+                display.drawAllFaces(cube.getToDrawFaces(cam, light));
             }
         };
         reDraw.start();
