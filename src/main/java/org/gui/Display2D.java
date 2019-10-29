@@ -3,8 +3,8 @@ package org.gui;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
-import org.hyperCube.KompositumCube.Face;
-import org.hyperCube.KompositumCube.Line;
+import org.render3D.KompositumCube.Face;
+import org.render3D.KompositumCube.Line;
 
 public class Display2D extends Canvas {
     private GraphicsContext gc;
@@ -26,7 +26,6 @@ public class Display2D extends Canvas {
                          line.getP2().get(0) + getWidth()/2, line.getP2().get(1) + getHeight()/2);
         }
     }
-
 
 
     public void reset(){

@@ -1,13 +1,15 @@
 package org.hyperCube;
 
+import matrixLibrary.formula.AddUpFormula;
+import matrixLibrary.formula.SubtractFormula;
 import matrixLibrary.matrix.Matrix;
+import matrixLibrary.matrix.Vector;
 import matrixLibrary.utils.MatrixCalc;
 import matrixLibrary.utils.VectorCalc;
 import org.gui.Camera3D;
-import org.hyperCube.KompositumCube.Construct;
-import org.hyperCube.KompositumCube.Element;
-import org.hyperCube.KompositumCube.Face;
-import org.hyperCube.KompositumCube.Line;
+import org.render3D.KompositumCube.Face;
+import org.render3D.KompositumCube.Line;
+import org.render3D.KompositumCube.Object3D;
 
 import java.util.ArrayList;
 
@@ -59,20 +61,20 @@ public class HyperCube {
 
     public Line[] getToDrawLines(Camera3D cam) {
         Construct workerCube = cube.clone();
-        Matrix[] allPoints = workerCube.getAllPoints();
-        for(Matrix p: allPoints){
+        Vector[] allPoints = workerCube.getAllPoints();
+        for(Vector p: allPoints){
             // normalize vector length
             p.multiplyScalar(0.5);
-            Matrix temp = CubeCalculator.getShadow(p, 3, VectorCalc.getLength(cam.getVisionAxes()));
-            p.copyAll(temp);
+            Vector temp = CubeCalculator.getShadow(p, 3, VectorCalc.getLength(cam.getVisionAxes()));
+            p.copy(temp);
         }
         Construct[] allFaces = workerCube.get(2);
         ArrayList<Construct> allFacesToPrint = new ArrayList<>();
         for(Construct f: allFaces){
             Line[] allLines = f.getLines();
-            Matrix onePoint = allLines[0].getP1().copy();
-            onePoint.subtract(cam.getVisionAxes());
-            Matrix normal = f.calculateNormalVector();
+            Vector onePoint = allLines[0].getP1().clone();
+            onePoint.addFormula(new SubtractFormula(cam.getVisionAxes()));
+            Vector normal = f.calculateNormalVector();
             if(VectorCalc.dotProduct(normal,onePoint) <= 0) {
                 allFacesToPrint.add(f);
             }
@@ -95,23 +97,24 @@ public class HyperCube {
         return toPrintLines.toArray(new Line[0]);
     }
 
-    public Face[] getToDrawFaces(Camera3D cam) {
+    /*
+    public Face[] getToDrawFaces(Camera3D cam, Vector light) {
         Construct workerCube = cube.clone();
-        Matrix[] allPoints = workerCube.getAllPoints();
-        for(Matrix p: allPoints){
+        Vector[] allPoints = workerCube.getAllPoints();
+        for(Vector p: allPoints){
             // normalize vector length
             p.multiplyScalar(0.5);
-            Matrix temp = CubeCalculator.getShadow(p, 3, VectorCalc.getLength(cam.getVisionAxes()));
-            p.copyAll(temp);
+            Vector temp = CubeCalculator.getShadow(p, 3, VectorCalc.getLength(cam.getVisionAxes()));
+            p.copy(temp);
         }
         Construct[] allFaces = workerCube.get(2);
         ArrayList<Matrix> allPointsToDraw = new ArrayList<>();
         ArrayList<Face> allDrownFaces = new ArrayList<>();
         for(Construct f: allFaces){
             Line[] allLines = f.getLines();
-            Matrix onePoint = allLines[0].getP1().copy();
-            onePoint.subtract(cam.getVisionAxes());
-            Matrix normal = f.calculateNormalVector();
+            Vector onePoint = allLines[0].getP1().clone();
+            onePoint.addFormula(new SubtractFormula(cam.getVisionAxes()));
+            Vector normal = f.calculateNormalVector();
             if(VectorCalc.dotProduct(normal,onePoint) <= 0) {
                 Line[] linesOfTheFace = f.getLines();
                 allDrownFaces.add(new Face(linesOfTheFace[0], linesOfTheFace[1]));
@@ -127,35 +130,30 @@ public class HyperCube {
         return allDrownFaces.toArray(new Face[0]);
     }
 
-    public Face[] getToDrawFaces(Camera3D cam , Matrix light) {
+     */
+
+    public Object3D getAsObject3D(Camera3D cam) {
         Construct workerCube = cube.clone();
-        Matrix[] allPoints = workerCube.getAllPoints();
-        for(Matrix p: allPoints){
+        Vector[] allPoints = workerCube.getAllPoints();
+        ArrayList<Vector> allPointsA = new ArrayList<>();
+        for(Vector p: allPoints){
             // normalize vector length
             p.multiplyScalar(0.5);
-            Matrix temp = CubeCalculator.getShadow(p, 3, VectorCalc.getLength(cam.getVisionAxes()));
-            p.copyAll(temp);
+            Vector temp = CubeCalculator.getShadow(p, 3, VectorCalc.getLength(cam.getVisionAxes()));
+            p.copy(temp);
+            allPointsA.add(p);
         }
         Construct[] allFaces = workerCube.get(2);
-        ArrayList<Matrix> allPointsToDraw = new ArrayList<>();
         ArrayList<Face> allDrownFaces = new ArrayList<>();
         for(Construct f: allFaces){
-            Line[] allLines = f.getLines();
-            Matrix onePoint = allLines[0].getP1().copy();
-            onePoint.subtract(cam.getVisionAxes());
-            Matrix normal = f.calculateNormalVector();
-            if(VectorCalc.dotProduct(normal,onePoint) <= 0) {
-                Line[] linesOfTheFace = f.getLines();
-                allDrownFaces.add(new Face(linesOfTheFace[0], linesOfTheFace[1], normal));
-                allDrownFaces.add(new Face(linesOfTheFace[2], linesOfTheFace[3], normal));
-            }
+            Vector normal = f.calculateNormalVector();
+            Line[] linesOfTheFace = f.getLines();
+            Face newF = new Face(linesOfTheFace[0], linesOfTheFace[1], normal);
+            allDrownFaces.add(newF);
+            newF = new Face(linesOfTheFace[2], linesOfTheFace[3], normal);
+            allDrownFaces.add(newF);
         }
 
-        for(Face f: allDrownFaces){
-            f.calc2DShadow(cam);
-            f.scale(scale);
-            f.calcLightIntensity(light);
-        }
-        return allDrownFaces.toArray(new Face[0]);
+        return new Object3D(allDrownFaces, allPointsA, "Hypercupe");
     }
 }

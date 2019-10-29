@@ -1,18 +1,22 @@
-package org.hyperCube.KompositumCube;
+package org.render3D.KompositumCube;
 
+import matrixLibrary.formula.Formula;
+import matrixLibrary.formula.SubtractFormula;
 import matrixLibrary.matrix.Matrix;
+import matrixLibrary.matrix.Vector;
 import matrixLibrary.utils.VectorCalc;
 import org.gui.Camera3D;
+import org.hyperCube.Construct;
 import org.hyperCube.CubeCalculator;
 
 import java.util.ArrayList;
 
 public class Face implements Element {
-    Matrix p1;
-    Matrix p2;
-    Matrix p3;
+    Vector p1;
+    Vector p2;
+    Vector p3;
     private double lightIntensity = 1.0;
-    private Matrix normal;
+    private Vector normal;
 
     public Face(Line l1, Line l2){
         if(l1.getP2() != l2.getP1()){
@@ -25,7 +29,7 @@ public class Face implements Element {
         calcNormal();
     }
 
-    public Face(Line l1, Line l2, Matrix normal){
+    public Face(Line l1, Line l2, Vector normal){
         if(l1.getP2() != l2.getP1()){
             System.out.println("triangle needs to be drown clockwise.");
             return;
@@ -36,8 +40,21 @@ public class Face implements Element {
         this.normal = normal;
     }
 
-    public void calcLightIntensity(Matrix light){
-        lightIntensity = VectorCalc.dotProduct(normal, light);
+    public Face(Vector p1, Vector p2, Vector p3, Vector normal){
+        this.p1 = p1;
+        this.p2 = p2;
+        this.p3 = p3;
+        this.normal = normal;
+    }
+
+    public Face(Vector p1, Vector p2, Vector p3){
+        this.p1 = p1;
+        this.p2 = p2;
+        this.p3 = p3;
+    }
+
+    public void calcLightIntensity(Vector light){
+        lightIntensity = VectorCalc.dotProduct(normal, VectorCalc.getNormalizeVector(light));
         if(lightIntensity < 0){
             lightIntensity = 0;
         }
@@ -47,11 +64,12 @@ public class Face implements Element {
         return this.lightIntensity;
     }
 
-    private void calcNormal(){
-        Matrix endPoint1 = p2.copy();
-        Matrix endPoint2 = p3.copy();
-        endPoint1.subtract(p1);
-        endPoint2.subtract(p1);
+    public void calcNormal(){
+        Vector endPoint1 = p2.clone();
+        Vector endPoint2 = p3.clone();
+        Formula f = new SubtractFormula(p1);
+        endPoint1.addFormula(f);
+        endPoint2.addFormula(f);
         endPoint1 = VectorCalc.getNormalizeVector(endPoint1);
         endPoint2 = VectorCalc.getNormalizeVector(endPoint2);
         this.normal =  VectorCalc.getNormalizeVector(VectorCalc.crossProduct(endPoint1, endPoint2));
@@ -69,27 +87,16 @@ public class Face implements Element {
         p3.multiplyScalar(scale);
     }
 
-    private Face(Matrix p1, Matrix p2, Matrix p3){
-        this.p1 = p1;
-        this.p2 = p2;
-        this.p3 = p3;
-    }
-
-    public Matrix getP1() {
+    public Vector getP1() {
         return p1;
     }
 
-    public Matrix getP2() {
+    public Vector getP2() {
         return p2;
     }
 
-    public Matrix getP3() {
+    public Vector getP3() {
         return p3;
-    }
-
-    @Override
-    public Construct[] get(int dimension) {
-        return null;
     }
 
     @Override
@@ -100,7 +107,16 @@ public class Face implements Element {
     }
 
     @Override
-    public Element clone(ArrayList<Matrix> allMatrices) {
-        return new Face(p1.copy(), p2.copy(), p3.copy());
+    public Element clone(ArrayList<Vector> allMatrices) {
+        return new Face(p1.clone(), p2.clone(), p3.clone());
+    }
+
+    @Override
+    public Element[] getElements() {
+        return new Element[0];
+    }
+
+    public Vector getNormal(){
+        return normal;
     }
 }

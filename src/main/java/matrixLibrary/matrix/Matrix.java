@@ -1,21 +1,17 @@
 package matrixLibrary.matrix;
 
+import matrixLibrary.Exceptions.MatrixDontMatchException;
+import matrixLibrary.formula.Formula;
 import org.apache.commons.lang3.ArrayUtils;
 
 /**
  * A matrix that is stored in a single array.
  */
-public class Matrix {
-    // the max distance value to say the value is equal
-    private double lambda = 0.000001f;
+public class Matrix extends LinearElement {
     private double[] matrix;
     private int rows;
     private int cols;
     private boolean transpose = false;
-
-    // a few values for printing the matrix
-    private int shownNumbers = 9;
-    private int maxShownRowsCols = 10;
 
     public Matrix(int rows, int cols) {
         this.rows = rows;
@@ -46,11 +42,9 @@ public class Matrix {
     }
 
     /**
-     * creates a copy of the Matrix.
-     *
-     * @return - the copy.
+     * @return - a clone of the Matrix.
      */
-    public Matrix copy() {
+    public Matrix clone() {
 
         Matrix copy = new Matrix(ArrayUtils.clone(this.matrix), this.rows);
 
@@ -62,76 +56,6 @@ public class Matrix {
     }
 
     /**
-     * @return - the index withe the highest Values, if there are 2 maxValues it returns the firs.
-     */
-    public int getMaxIndex() {
-        double max = matrix[0];
-        int maxIndex = 0;
-        for (int i = 1; i < rows * cols; i++) {
-            if (matrix[i] > max) {
-                max = matrix[i];
-                maxIndex = i;
-            }
-        }
-        return maxIndex;
-    }
-
-    /**
-     * adds the given Matrix to the Matrix.
-     *
-     * @param toAdd - the matrix to addition.
-     */
-    public void addUp(Matrix toAdd) {
-
-        if (toAdd.rows() != this.rows() || toAdd.cols() != this.cols()) {
-            throw new MatrixDontMatchException("the Matrices hav not the same shape: (" +
-                    toAdd.rows() + "," + toAdd.cols() + ") != (" + this.rows() + "," + this.cols() + ")");
-        }
-
-        for (int i = 0; i < rows(); i++) {
-            for (int j = 0; j < cols(); j++) {
-                this.set(i, j, this.get(i, j) + toAdd.get(i, j));
-            }
-        }
-    }
-
-    /**
-     * subtracts the given matrix from the matrix.
-     *
-     * @param toSubtract - the matrix to subtract.
-     */
-    public void subtract(Matrix toSubtract) {
-        if (toSubtract.rows() != this.rows() || toSubtract.cols() != this.cols()) {
-            throw new MatrixDontMatchException("the Matrices hav not the same shape: (" +
-                    toSubtract.rows() + "," + toSubtract.cols() + ") != (" + this.rows() + "," + this.cols() + ")");
-        }
-
-        for (int i = 0; i < rows(); i++) {
-            for (int j = 0; j < cols(); j++) {
-                set(i, j, get(i, j) - toSubtract.get(i, j));
-            }
-        }
-    }
-
-    /**
-     * multiply the given matrix values to the matrix
-     *
-     * @param toMultiply - the matrix to multiply the values
-     */
-    public void multiplyValues(Matrix toMultiply) {
-        if (toMultiply.rows() != this.rows() || toMultiply.cols() != this.cols()) {
-            throw new MatrixDontMatchException("Can not multiply these Vectors, not the same shape: (" +
-                    toMultiply.rows() + "," + toMultiply.cols() + ") != (" + this.rows() + "," + this.cols() + ")");
-        }
-
-        for (int i = 0; i < rows(); i++) {
-            for (int j = 0; j < cols(); j++) {
-                set(i, j, get(i, j) * toMultiply.get(i, j));
-            }
-        }
-    }
-
-    /**
      * add a Formula to the Matrix
      *
      * @param f - a Formula to apply on the matrix
@@ -140,11 +64,7 @@ public class Matrix {
         f.applyFormula(this);
     }
 
-    /**
-     * multiplys matrix by scalar
-     *
-     * @param scalar - a scalar
-     */
+
     public void multiplyScalar(double scalar) {
         for (int i = 0; i < rows * cols; i++) {
             matrix[i] *= (double) scalar;
@@ -158,132 +78,12 @@ public class Matrix {
         return (cols() == 1);
     }
 
-    public void printVector(){
-        System.out.print("(");
-        if (rows() > maxShownRowsCols) {
-            for (int i = 0; i < maxShownRowsCols / 2; i++) {
-                System.out.print(setFixPrintLength(matrix[i]));
-                if(i < maxShownRowsCols / 2-1){
-                    System.out.print(" ");
-                }
-            }
-
-            printSeparator("   ...   ");
-            for (int i = rows() - maxShownRowsCols / 2; i < rows(); i++) {
-                System.out.print(setFixPrintLength(matrix[i]));
-                if(i < maxShownRowsCols / 2-1){
-                    System.out.print(" ");
-                }
-            }
-        } else {
-            for (int i = 0; i < rows(); i++) {
-                System.out.print(setFixPrintLength(matrix[i]));
-                if(i < rows()){
-                    System.out.print(" ");
-                }
-            }
-        }
-        System.out.print(")");
-    }
-
     /**
-     * prints the matrix, maximum displayed is 10x10, if bigger the middle
+     * prints the matrix, maximum displayed is maxShownRowsCols, if bigger the middle
      * elements won't by shown.
      */
     public void print() {
-        if (rows() > maxShownRowsCols) {
-            for (int i = 0; i < maxShownRowsCols / 2; i++) {
-                printRow(i);
-            }
-
-            printSeparator("   ...   ");
-            for (int i = rows() - maxShownRowsCols / 2; i < rows(); i++) {
-                printRow(i);
-            }
-        } else {
-            for (int i = 0; i < rows(); i++) {
-                printRow(i);
-            }
-        }
-        printSeparator("---------");
-    }
-
-    private void printSeparator(String separator) {
-        if (cols > maxShownRowsCols) {
-            for (int i = 0; i < maxShownRowsCols + 1; i++) {
-                System.out.print(separator);
-                if ((i) % maxShownRowsCols / 2 != 0) {
-                    System.out.print("  ");
-                }
-            }
-        } else {
-            for (int i = 0; i < cols; i++) {
-                System.out.print(separator);
-                if (i + 1 != cols) {
-                    System.out.print("  ");
-                }
-            }
-        }
-        System.out.println();
-    }
-
-    private void printRow(int row) {
-        if (cols() > maxShownRowsCols) {
-            for (int i = 0; i < maxShownRowsCols / 2; i++) {
-                System.out.print(setFixPrintLength(get(row, i)));
-                if (i < maxShownRowsCols / 2 - 1) {
-                    System.out.print("  ");
-                }
-            }
-            System.out.print("   ...   ");
-            for (int i = cols() - maxShownRowsCols / 2; i < cols(); i++) {
-                System.out.print(setFixPrintLength(get(row, i)));
-                if (i < cols() - 1) {
-                    System.out.print("  ");
-                }
-            }
-            System.out.println();
-        } else {
-            for (int i = 0; i < cols(); i++) {
-                System.out.print(setFixPrintLength(get(row, i)));
-                if (i < cols() - 1) {
-                    System.out.print("  ");
-                }
-            }
-            System.out.println();
-        }
-    }
-
-    private String setFixPrintLength(double input) {
-        String strInput = String.format(("%." + (this.shownNumbers-2) + "f"), input);
-        StringBuilder printer = new StringBuilder();
-        for (int i = 0; i < this.shownNumbers; i++) {
-            if (i < strInput.length()) {
-                printer.append(strInput.charAt(i));
-            } else {
-                printer.append(' ');
-            }
-        }
-        return printer.toString();
-    }
-
-    /**
-     * Sets the max shown rows and columns.
-     * If the matrix has more rows or columns, print will down't show the numbers in the middle.
-     *
-     * @param number - the max siz of rows and columns.
-     */
-    public void setMaxShownRowsCols(int number) {
-        this.maxShownRowsCols = number;
-    }
-
-    /**
-     * sets the shown numbers of one Value py printing the matrix to the given number size.
-     *
-     * @param number - the number size.
-     */
-    public void setShownNumbers(int number) {
-        this.shownNumbers = number;
+        System.out.println(toString());
     }
 
     /**
@@ -316,7 +116,7 @@ public class Matrix {
      * @param col - the col value.
      * @return - the index.
      */
-    public int getIndex(int row, int col) {
+    private int getIndex(int row, int col) {
         if (transpose) {
             if (col > (this.rows - 1) || row > (this.cols - 1) || col < 0 || row < 0) {
                 throw new IndexOutOfBoundsException("(" + row + "," + col + ") out of bounds for matrix (" + cols() + "," + rows() + ").");
@@ -352,7 +152,6 @@ public class Matrix {
     }
 
     /**
-     * if it is just a Vector you can set Values just with the index.
      * Use carefully, it will set the value even if it is a matrix and
      * might get unwonted results.
      *
@@ -403,27 +202,8 @@ public class Matrix {
      * a Matrix  d e f    will be converted in (a b c d e f) transpose.
      *
      */
-    public void convertToVector() {
-        this.rows = this.rows * this.cols;
-        this.cols = 1;
-    }
-
-    public void convertToMatrix(int rows){
-        if (matrix.length % rows != 0) {
-            throw new MatrixDontMatchException("not a valid Matrix");
-        }
-        this.cols = matrix.length / rows;
-        this.rows = rows;
-    }
-
-    /**
-     * Sets lambda to the new Value.
-     * Lambda is just used to say if two matrix values are the same.
-     *
-     * @param newLambda - the new lambda
-     */
-    public void setLambda(double newLambda) {
-        this.lambda = newLambda;
+    public Vector convertToVector() {
+        return new Vector(matrix);
     }
 
     /**
@@ -446,37 +226,32 @@ public class Matrix {
         }
     }
 
-    /**
-     * enlarges the vector size by 1, adds the given Value at the last new field.
-     * assumes that it is a vector, doesn't test it!!!!
-     *
-     * @param newValue - the new end Value.
-     */
-    public void push(double newValue){
-        double[] newMatrix = new double[matrix.length + 1];
-        for(int i = 0; i < matrix.length; i++){
-            newMatrix[i] = matrix[i];
-        }
-        this.rows ++;
-        newMatrix[matrix.length] = newValue;
-        this.matrix = newMatrix;
+    protected double[] getArray(){
+        return this.matrix;
     }
 
     /**
-     * decreases the vector size by 1, returns the last Value.
-     * assumes that it is a vector, doesn't test it!!!!
+     * set the matrix values to a deep copy of mtx values.
      *
-     * @return -  the last number.
+     * @param mtx - matrix to deep copy.
      */
-    public double pull(){
-        double[] newMatrix = new double[matrix.length - 1];
-        for(int i = 0; i < newMatrix.length; i++){
-            newMatrix[i] = matrix[i];
-        }
-        double valueToPull = matrix[matrix.length-1];
-        this.matrix = newMatrix;
-        this.rows--;
-        return valueToPull;
+    public void deepCopy(Matrix mtx){
+        this.matrix = ArrayUtils.clone(mtx.matrix);
+        this.rows = mtx.rows;
+        this.cols = mtx.cols;
+        this.transpose = mtx.transpose;
+    }
+
+    /**
+     * set the matrix values to a light copy of mtx values.
+     *
+     * @param mtx - matrix to deep copy.
+     */
+    public void copy(Matrix mtx){
+        this.matrix = mtx.matrix;
+        this.rows = mtx.rows;
+        this.cols = mtx.cols;
+        this.transpose = mtx.transpose;
     }
 
     public boolean equals(Object o) {
@@ -498,18 +273,67 @@ public class Matrix {
         return true;
     }
 
-    protected double[] getArray(){
-        return this.matrix;
+    public String toString(){
+        StringBuilder sb = new StringBuilder();
+        if (rows() > maxShownRowsCols) {
+            for (int i = 0; i < maxShownRowsCols / 2; i++) {
+                addRow(i, sb);
+            }
+
+            addSeparator(" .. ", sb);
+            for (int i = rows() - maxShownRowsCols / 2; i < rows(); i++) {
+                addRow(i, sb);
+            }
+        } else {
+            for (int i = 0; i < rows(); i++) {
+                addRow(i, sb);
+            }
+        }
+        addSeparator("-", sb);
+        return sb.toString();
     }
 
-    public void copyAll(Matrix mtx){
-        this.matrix = mtx.matrix;
-        this.rows = mtx.rows;
-        this.cols = mtx.cols;
-        this.transpose = mtx.transpose;
+    private void addSeparator(String separator, StringBuilder sb) {
+        if (cols > maxShownRowsCols) {
+            StringBuilder lineOfSeparators = new StringBuilder();
+            while (lineOfSeparators.length() < maxShownRowsCols*shownDigits + (maxShownRowsCols - 2) + 4){
+                lineOfSeparators.append(separator);
+            }
+            sb.append(lineOfSeparators);
+        } else {
+            StringBuilder lineOfSeparators = new StringBuilder();
+            while (lineOfSeparators.length() < cols()*shownDigits + (cols() - 2) + 4){
+                lineOfSeparators.append(separator);
+            }
+            sb.append(lineOfSeparators);
+        }
+        sb.append("\n");
     }
 
-    protected void setMatrixArray(double[] newMatrix){
-        this.matrix = newMatrix;
+    private void addRow(int row, StringBuilder sb) {
+        if (cols() > maxShownRowsCols) {
+            for (int i = 0; i < maxShownRowsCols / 2; i++) {
+                sb.append(setFixPrintLength(get(row, i)));
+                if (i < maxShownRowsCols / 2 - 1) {
+                    sb.append("  ");
+                }
+            }
+            sb.append(" .. ");
+            for (int i = cols() - maxShownRowsCols / 2; i < cols(); i++) {
+                sb.append(setFixPrintLength(get(row, i)));
+                if (i < cols() - 1) {
+                    sb.append("  ");
+                }
+            }
+            sb.append("\n");
+        } else {
+            for (int i = 0; i < cols(); i++) {
+                sb.append(setFixPrintLength(get(row, i)));
+                if (i < cols() - 1) {
+                    sb.append("  ");
+                }
+            }
+            sb.append("\n");
+        }
     }
 }

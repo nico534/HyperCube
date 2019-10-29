@@ -6,8 +6,15 @@ import javafx.scene.control.Slider;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import matrixLibrary.matrix.Matrix;
+import matrixLibrary.matrix.Vector;
+import matrixLibrary.utils.VectorCalc;
 import org.hyperCube.CubeCalculator;
 import org.hyperCube.HyperCube;
+import org.render3D.KompositumCube.Object3D;
+import org.render3D.utils.Renderer;
+
+import java.io.File;
+import java.io.IOException;
 
 public class mainController extends BorderPane {
     private VBox rotateBox;
@@ -17,10 +24,11 @@ public class mainController extends BorderPane {
 
     private Display2D display;
     private Camera3D cam;
-    private Matrix light;
+    private Vector light;
     private int dimensions;
 
     private HyperCube cube;
+    private Object3D objectToRender;
 
     private AnimationTimer reDraw;
 
@@ -28,13 +36,13 @@ public class mainController extends BorderPane {
         setPrefHeight(600);
         setPrefWidth(800);
 
-        Matrix camMatrix = new Matrix(3);
+        Vector camMatrix = new Vector(3);
         camMatrix.set(2, 2);
         cam = new Camera3D(camMatrix);
-        light = new Matrix(3);
+        light = new Vector(3);
         light.set(2, 1);
 
-        dimensions = 5;
+        dimensions = 3;
         cube = new HyperCube(dimensions);
         display = new Display2D(600, 600);
         setCenter(display);
@@ -134,7 +142,7 @@ public class mainController extends BorderPane {
             public void handle(long l) {
                 cube.rotate();
                 display.reset();
-                display.drawAllFaces(cube.getToDrawFaces(cam, light));
+                display.drawAllFaces(Renderer.getRendered(cube.getAsObject3D(cam), cam, light, HyperCube.scale));
             }
         };
         reDraw.start();

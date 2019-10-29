@@ -1,9 +1,10 @@
 package org.hyperCube;
 
 import matrixLibrary.matrix.Matrix;
+import matrixLibrary.matrix.Vector;
 import matrixLibrary.utils.MatrixCalc;
-import org.hyperCube.KompositumCube.Construct;
-import org.hyperCube.KompositumCube.Line;
+import matrixLibrary.utils.VectorCalc;
+import org.render3D.KompositumCube.Line;
 
 import java.util.ArrayList;
 
@@ -30,10 +31,10 @@ public class CubeCalculator {
         return new Construct(createBox(dimension), dimension);
     }
 
-    private static Matrix[] createBox(int dimension){
-        Matrix[] erg = new Matrix[dimension];
+    private static Vector[] createBox(int dimension){
+        Vector[] erg = new Vector[dimension];
         for (int i = 0; i < erg.length; i++) {
-            erg[i] = new Matrix((int) Math.pow(2, dimension));
+            erg[i] = new Vector((int) Math.pow(2, dimension));
         }
 
         for (int i = 0; i < erg.length; i++) {
@@ -48,9 +49,9 @@ public class CubeCalculator {
                 erg[i].set(j, add.get(j % add.rows()));
             }
         }
-        Matrix[] endErg = new Matrix[(int) Math.pow(2, dimension)];
+        Vector[] endErg = new Vector[(int) Math.pow(2, dimension)];
         for(int i = 0; i <  Math.pow(2, dimension); i++){
-            endErg[i] = new Matrix(dimension);
+            endErg[i] = new Vector(dimension);
             for(int j = 0; j < dimension; j++){
                 endErg[i].set(j, erg[j].get(i));
             }
@@ -58,10 +59,10 @@ public class CubeCalculator {
         return endErg;
     }
 
-    public static Matrix getShadow(Matrix vector, int toDimension, double distance){
-        Matrix erg = vector.copy();
+    public static Vector getShadow(Vector vector, int toDimension, double distance){
+        Vector erg = vector.clone();
         for(int i = vector.rows(); i > toDimension; i--){
-            erg = MatrixCalc.multiply(createOneDimDownMatrix(1.0/(distance - erg.get(i-1)), i), erg);
+            erg = VectorCalc.multiply(createOneDimDownMatrix(1.0/(distance - erg.get(i-1)), i), erg);
         }
         return erg;
     }
@@ -75,9 +76,9 @@ public class CubeCalculator {
         return projection;
     }
 
-    public static Matrix[] recreatePointMtx(Construct c){
+    public static Vector[] recreatePointMtx(Construct c){
         Line[] allLines = c.getLines();
-        ArrayList<Matrix> allPoints = new ArrayList<>();
+        ArrayList<Vector> allPoints = new ArrayList<>();
         for(Line l: allLines){
             if(!allPoints.contains(l.getP1())){
                 allPoints.add(l.getP1());
@@ -86,7 +87,7 @@ public class CubeCalculator {
                 allPoints.add(l.getP2());
             }
         }
-        return allPoints.toArray(new Matrix[0]);
+        return allPoints.toArray(new Vector[0]);
     }
 
     public static Matrix calcRotationMatrix( int axes1, int axes2, double angle, int dimension){

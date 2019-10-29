@@ -1,7 +1,8 @@
 package matrixLibrary.utils;
 
+import matrixLibrary.matrix.LinearElement;
 import matrixLibrary.matrix.Matrix;
-import matrixLibrary.matrix.MatrixDontMatchException;
+import matrixLibrary.Exceptions.MatrixDontMatchException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,7 +22,7 @@ public class MatrixCalc {
      * @return - all mtxA[i]*mtxB[i]
      * @throws InterruptedException - parallel multiplication
      */
-    public static Matrix[] multiplyParallel(final Matrix[] mtxA, final Matrix[] mtxB) throws InterruptedException {
+    public static Matrix[] multiplyParallel(final LinearElement[] mtxA, final LinearElement[] mtxB) throws InterruptedException {
         // if Matrices to small linear multiplication is faster
         if (mtxA[0].rows() + mtxA[0].cols() < parallelLimit) {
             return multiplyLinear(mtxA, mtxB);
@@ -51,7 +52,7 @@ public class MatrixCalc {
         return allErgs;
     }
 
-    private static Matrix[] multiplyLinear(Matrix[] mtxA, Matrix[] mtxB) {
+    private static Matrix[] multiplyLinear(LinearElement[] mtxA, LinearElement[] mtxB) {
         Matrix[] ergMtx = new Matrix[mtxA.length];
         for (int i = 0; i < mtxA.length; i++) {
             ergMtx[i] = multiply(mtxA[i], mtxB[i]);
@@ -66,7 +67,7 @@ public class MatrixCalc {
      * @param mtxB - mtxB
      * @return - mtxA * mtxB
      */
-    public static Matrix multiply(Matrix mtxA, Matrix mtxB) {
+    public static Matrix multiply(LinearElement mtxA, LinearElement mtxB) {
         Matrix erg = new Matrix(mtxA.rows(), mtxB.cols());
         if (mtxB.isTranspose() && !mtxA.isTranspose()) {
             multiplyIJK(mtxA, mtxB, erg);
@@ -91,7 +92,7 @@ public class MatrixCalc {
         return erg;
     }
 
-    private static void multiplyIJK(Matrix mtxA, Matrix mtxB, Matrix mtxC) {
+    private static void multiplyIJK(LinearElement mtxA, LinearElement mtxB, Matrix mtxC) {
         for (int i = 0; i < mtxA.rows(); i++) {
             for (int j = 0; j < mtxB.cols(); j++) {
                 double sum = 0;
@@ -103,7 +104,7 @@ public class MatrixCalc {
         }
     }
 
-    private static void multiplyJIK(Matrix mtxA, Matrix mtxB, Matrix mtxC) {
+    private static void multiplyJIK(LinearElement mtxA, LinearElement mtxB, Matrix mtxC) {
         for (int j = 0; j < mtxB.cols(); j++) {
             for (int i = 0; i < mtxA.rows(); i++) {
                 double sum = 0;

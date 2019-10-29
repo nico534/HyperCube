@@ -1,9 +1,14 @@
-package org.hyperCube.KompositumCube;
+package org.hyperCube;
 
+import matrixLibrary.formula.Formula;
+import matrixLibrary.formula.SubtractFormula;
 import matrixLibrary.matrix.Matrix;
-import matrixLibrary.matrix.RotateVectorFormula;
-import matrixLibrary.matrix.ShortenVectorToSizeFormula;
+import matrixLibrary.formula.RotateVectorFormula;
+import matrixLibrary.formula.ShortenVectorToSizeFormula;
+import matrixLibrary.matrix.Vector;
 import matrixLibrary.utils.VectorCalc;
+import org.render3D.KompositumCube.Element;
+import org.render3D.KompositumCube.Line;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -11,11 +16,11 @@ import java.util.Arrays;
 public class Construct implements Element {
     private Element[] constructs;
     private int dimension;
-    Matrix[] allPoints;
+    private Vector[] allPoints;
 
     private int[] ignoreValues = new int[0];
 
-    public Construct(Matrix[] pointsOfTheConstruct, int dimension){
+    public Construct(Vector[] pointsOfTheConstruct, int dimension){
         init(pointsOfTheConstruct, dimension);
         this.allPoints = pointsOfTheConstruct;
         updateFaces();
@@ -27,13 +32,13 @@ public class Construct implements Element {
         this.ignoreValues = ignoreValues;
     }
 
-    private Construct(Matrix[] pointsOfTheConstruct, int dimension, int[] ignoreValues){
+    private Construct(Vector[] pointsOfTheConstruct, int dimension, int[] ignoreValues){
         this.ignoreValues = ignoreValues;
         init(pointsOfTheConstruct, dimension);
         this.allPoints = pointsOfTheConstruct;
     }
 
-    private void init(Matrix[] pointsOfTheConstruct, int dimension){
+    private void init(Vector[] pointsOfTheConstruct, int dimension){
         this.dimension = dimension;
         if(dimension > 2){
             constructs = new Construct[2 * this.dimension];
@@ -42,8 +47,8 @@ public class Construct implements Element {
                 if(inIgnored(i)){
                     continue;
                 }
-                Matrix[] newPoints = findTogetherAt(i, 1, pointsOfTheConstruct);
-                Matrix[] newPoint2 = findTogetherAt(i, -1, pointsOfTheConstruct);
+                Vector[] newPoints = findTogetherAt(i, 1, pointsOfTheConstruct);
+                Vector[] newPoint2 = findTogetherAt(i, -1, pointsOfTheConstruct);
                 constructs[counter] = new Construct(newPoints, dimension -1, adToIgnore(i));
                 counter++;
                 constructs[counter] = new Construct(newPoint2, dimension -1, adToIgnore(i));
@@ -56,8 +61,8 @@ public class Construct implements Element {
                 if(inIgnored(i)){
                     continue;
                 }
-                Matrix[] newPoints = findTogetherAt(i, 1, pointsOfTheConstruct);
-                Matrix[] newPoint2 = findTogetherAt(i, -1, pointsOfTheConstruct);
+                Vector[] newPoints = findTogetherAt(i, 1, pointsOfTheConstruct);
+                Vector[] newPoint2 = findTogetherAt(i, -1, pointsOfTheConstruct);
                 constructs[counter] = new Line(newPoints,  adToIgnore(i));
                 counter++;
                 constructs[counter] = new Line(newPoint2, adToIgnore(i));
@@ -66,10 +71,10 @@ public class Construct implements Element {
         }
     }
 
-    private Matrix[] findTogetherAt(int dimension, float number, Matrix[] allPoints){
-        Matrix[] rightPoints = new Matrix[(int)Math.pow(2, (this.dimension-1))];
+    private Vector[] findTogetherAt(int dimension, float number, Vector[] allPoints){
+        Vector[] rightPoints = new Vector[(int)Math.pow(2, (this.dimension-1))];
         int counter = 0;
-        for(Matrix p: allPoints){
+        for(Vector p: allPoints){
             if(p.get(dimension) == number){
                 rightPoints[counter] = p;
                 counter++;
@@ -106,7 +111,8 @@ public class Construct implements Element {
         }
         ArrayList<Construct> getConstructs = new ArrayList<>();
         for(Element c: constructs){
-            Construct[] newConstructs = c.get(dimension);
+            Construct c2 = (Construct)c;
+            Construct[] newConstructs = c2.get(dimension);
             getConstructs.addAll(Arrays.asList(newConstructs));
         }
         return getConstructs.toArray(new Construct[0]);
@@ -119,6 +125,11 @@ public class Construct implements Element {
             getLines.addAll(Arrays.asList(newLines));
         }
         return getLines.toArray(new Line[0]);
+    }
+
+    @Override
+    public Element[] getElements() {
+        return new Element[0];
     }
 
     public void updateFaces(){
@@ -168,11 +179,11 @@ public class Construct implements Element {
         return 0;
     }
 
-    public Matrix[] getAllPoints(){
+    public Vector[] getAllPoints(){
         return this.allPoints;
     }
 
-    private void setAllPoints(Matrix[] newAllPoints){
+    private void setAllPoints(Vector[] newAllPoints){
         this.allPoints = newAllPoints;
     }
 
@@ -188,7 +199,7 @@ public class Construct implements Element {
         constructs[c2] = save;
     }
 
-    public Matrix calculateNormalVector(){
+    public Vector calculateNormalVector(){
         Line[] allLines = this.getLines();
         if(allLines.length != 4){
             System.out.println("you down't use a Face");
@@ -197,26 +208,27 @@ public class Construct implements Element {
         Line l1 = allLines[0];
         Line l2 = allLines[1];
 
-        Matrix startPoint = l1.getP1();
-        Matrix endPoint1 = l1.getP2().copy();
-        Matrix endPoint2 = l2.getP2().copy();
+        Vector startPoint = l1.getP1();
+        Vector endPoint1 = l1.getP2().clone();
+        Vector endPoint2 = l2.getP2().clone();
 
-        endPoint1.subtract(startPoint);
-        endPoint2.subtract(startPoint);
+        Formula f = new SubtractFormula(startPoint);
+        endPoint1.addFormula(f);
+        endPoint2.addFormula(f);
 
         endPoint1.addFormula(new ShortenVectorToSizeFormula(3));
         endPoint2.addFormula(new ShortenVectorToSizeFormula(3));
 
         endPoint1 = VectorCalc.getNormalizeVector(endPoint1);
         endPoint2 = VectorCalc.getNormalizeVector(endPoint2);
-        Matrix crossProd = VectorCalc.crossProduct(endPoint1, endPoint2);
+        Vector crossProd = VectorCalc.crossProduct(endPoint1, endPoint2);
         if(VectorCalc.getLength(crossProd) == 0){
             return crossProd;
         }
         return VectorCalc.getNormalizeVector(crossProd);
     }
 
-    public Construct clone(ArrayList<Matrix> allMatrices){
+    public Construct clone(ArrayList<Vector> allMatrices){
         Element[] newElements = new Element[constructs.length];
         for(int i = 0; i < constructs.length; i++){
             newElements[i] = this.constructs[i].clone(allMatrices);
@@ -226,16 +238,16 @@ public class Construct implements Element {
 
     public Construct clone(){
         Element[] newElements = new Element[constructs.length];
-        ArrayList<Matrix> cloneMtx = new ArrayList<>();
+        ArrayList<Vector> clonePoints = new ArrayList<>();
         for(int i = 0; i < this.allPoints.length; i++){
-            cloneMtx.add(this.allPoints[i].copy());
+            clonePoints.add(this.allPoints[i].clone());
         }
         for(int i = 0; i < constructs.length; i++){
-            newElements[i] = this.constructs[i].clone(cloneMtx);
+            newElements[i] = this.constructs[i].clone(clonePoints);
         }
 
         Construct newC = new Construct(newElements, this.dimension, this.ignoreValues);
-        newC.setAllPoints(cloneMtx.toArray(new Matrix[0]));
+        newC.setAllPoints(clonePoints.toArray(new Vector[0]));
         return newC;
     }
 }

@@ -1,8 +1,6 @@
-import com.sun.scenario.effect.impl.sw.java.JSWBlend_SRC_OUTPeer;
-import matrixLibrary.matrix.Matrix;
 import org.hyperCube.CubeCalculator;
-import org.hyperCube.KompositumCube.Construct;
-import org.hyperCube.KompositumCube.Line;
+import org.hyperCube.Construct;
+import org.render3D.KompositumCube.Line;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
