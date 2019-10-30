@@ -13,9 +13,6 @@ import org.hyperCube.HyperCube;
 import org.render3D.KompositumCube.Object3D;
 import org.render3D.utils.Renderer;
 
-import java.io.File;
-import java.io.IOException;
-
 public class mainController extends BorderPane {
     private VBox rotateBox;
 

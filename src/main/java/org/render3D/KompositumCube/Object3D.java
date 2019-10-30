@@ -1,11 +1,14 @@
 package org.render3D.KompositumCube;
 
+import matrixLibrary.formula.Formula;
+import matrixLibrary.formula.RotateVectorFormula;
 import matrixLibrary.matrix.Matrix;
 import matrixLibrary.matrix.Vector;
 import matrixLibrary.utils.MatrixCalc;
 import org.render3D.utils.Renderer;
 
 import java.io.*;
+import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -30,11 +33,18 @@ public class Object3D {
     public void rotate(int axes, double degree){
         this.rotate[axes] += degree;
         if(axes == 0){
-            Matrix rotation = Renderer.calcRotationMatrix(1, 2, degree);
-        }else if(axes == 0){
-            Matrix rotation = Renderer.calcRotationMatrix(1, 2, degree);
-        }else if(axes == 0){
-            Matrix rotation = Renderer.calcRotationMatrix(1, 2, degree);
+            applyRotation(Renderer.calcRotationMatrix(1, 2, degree));
+        }else if(axes == 1){
+            applyRotation(Renderer.calcRotationMatrix(0, 2, degree));
+        }else if(axes == 2){
+            applyRotation(Renderer.calcRotationMatrix(0, 1, degree));
+        }
+    }
+
+    private void applyRotation(Matrix rotation){
+        Formula mtxRotation = new RotateVectorFormula(rotation);
+        for(Vector v: points){
+            v.addFormula(mtxRotation);
         }
     }
 
@@ -48,7 +58,6 @@ public class Object3D {
 
     public Object3D(File f) throws IOException {
         loadObj(f);
-
         this.rotateTranslate = MatrixCalc.getIdentityMatrix(4);
     }
 
@@ -90,12 +99,21 @@ public class Object3D {
         return name;
     }
 
-    public Vector[] getPoints(){
+    public Vector[] getPoints() {
         return points.toArray(new Vector[0]);
     }
 
-    public Element clone(ArrayList<Vector> allMatrices) {
-        return null;
+    public void calcOrigin(){
+        double[] origin = new double[3];
+        for(Vector v: points){
+            origin[0] += v.get(0);
+            origin[1] += v.get(1);
+            origin[2] += v.get(2);
+        }
+        origin[0] /= points.size();
+        origin[1] /= points.size();
+        origin[2] /= points.size();
+        this.origin = new Vector(origin);
     }
 
 }
