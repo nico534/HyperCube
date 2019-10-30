@@ -2,9 +2,10 @@ package org.render3D.KompositumCube;
 
 import matrixLibrary.matrix.Matrix;
 import matrixLibrary.matrix.Vector;
+import matrixLibrary.utils.MatrixCalc;
+import org.render3D.utils.Renderer;
 
 import java.io.*;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -14,20 +15,41 @@ public class Object3D {
     private ArrayList<Vector> points = new ArrayList<>();
     private String name;
 
+    private Vector origin;
+    private Matrix rotateTranslate;
+
+    private double[] rotate = new double[3];
+
     public Object3D(Face[] faces, Vector[] points, String name){
         this.faces.addAll(Arrays.asList(faces));
         this.points.addAll(Arrays.asList(points));
         this.name = name;
+        this.rotateTranslate = MatrixCalc.getIdentityMatrix(4);
+    }
+
+    public void rotate(int axes, double degree){
+        this.rotate[axes] += degree;
+        if(axes == 0){
+            Matrix rotation = Renderer.calcRotationMatrix(1, 2, degree);
+        }else if(axes == 0){
+            Matrix rotation = Renderer.calcRotationMatrix(1, 2, degree);
+        }else if(axes == 0){
+            Matrix rotation = Renderer.calcRotationMatrix(1, 2, degree);
+        }
     }
 
     public Object3D(ArrayList<Face> faces, ArrayList<Vector> points, String name){
         this.faces = faces;
         this.points = points;
         this.name = name;
+
+        this.rotateTranslate = MatrixCalc.getIdentityMatrix(4);
     }
 
     public Object3D(File f) throws IOException {
         loadObj(f);
+
+        this.rotateTranslate = MatrixCalc.getIdentityMatrix(4);
     }
 
     public void loadObj(File file) throws IOException {

@@ -2,6 +2,7 @@ package org.render3D.utils;
 
 import matrixLibrary.matrix.Matrix;
 import matrixLibrary.matrix.Vector;
+import matrixLibrary.utils.MatrixCalc;
 import matrixLibrary.utils.VectorCalc;
 import org.gui.Camera3D;
 import org.render3D.KompositumCube.Face;
@@ -68,5 +69,14 @@ public class Renderer {
         }
         projection.multiplyScalar(dis);
         return projection;
+    }
+
+    public static Matrix calcRotationMatrix( int axes1, int axes2, double angle){
+        Matrix rotate = MatrixCalc.getIdentityMatrix(4);
+        rotate.set(axes1, axes1, Math.cos(angle));
+        rotate.set(axes1, axes2, -Math.sin(angle));
+        rotate.set(axes2, axes1, Math.sin(angle));
+        rotate.set(axes2, axes2, Math.cos(angle));
+        return rotate;
     }
 }
