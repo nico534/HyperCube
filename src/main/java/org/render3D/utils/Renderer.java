@@ -1,5 +1,8 @@
 package org.render3D.utils;
 
+import matrixLibrary.formula.AddUpFormula;
+import matrixLibrary.formula.Formula;
+import matrixLibrary.formula.SubtractFormula;
 import matrixLibrary.matrix.Matrix;
 import matrixLibrary.matrix.Vector;
 import matrixLibrary.utils.MatrixCalc;
@@ -55,13 +58,13 @@ public class Renderer {
     }
 
     private static Vector create2DShadow(Vector point, double distance) {
-        point = VectorCalc.multiply(createOneDimDownMatrix(1.0 / (distance - point.get(2)), 3), point);
+        point = VectorCalc.multiply(createOneDimDownMatrix(1.0 / (distance - point.get(2))), point);
         return point;
     }
 
-    private static Matrix createOneDimDownMatrix(double dis, int startDimension) {
-        Matrix projection = new Matrix(startDimension - 1, startDimension);
-        for (int j = 0; j < startDimension - 1; j++) {
+    private static Matrix createOneDimDownMatrix(double dis) {
+        Matrix projection = new Matrix(2, 3);
+        for (int j = 0; j < 2; j++) {
             projection.set(j, j, 1);
         }
         projection.multiplyScalar(dis);

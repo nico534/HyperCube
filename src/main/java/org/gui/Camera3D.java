@@ -2,6 +2,7 @@ package org.gui;
 
 import matrixLibrary.matrix.Matrix;
 import matrixLibrary.matrix.Vector;
+import matrixLibrary.utils.MatrixCalc;
 
 public class Camera3D {
     private Vector visionAxes;
