@@ -9,18 +9,16 @@ import org.render3D.KompositumCube.Face;
 import org.render3D.KompositumCube.Object3D;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 public class Renderer {
 
     public static Face[] getRendered(Object3D o, Camera3D cam, Vector light, double scale) {
         List<Vector> toRenderVectors = new ArrayList<>();
         List<Face> toRenderFaces = new ArrayList<>();
-
         for (Face f : o.getFaces()) {
-            if (VectorCalc.dotProduct(cam.getVisionAxes(), f.getNormal()) < 0) {
+            Vector checkPoint = VectorCalc.subtract(f.getP1(), cam.getVisionAxes());
+            if (VectorCalc.dotProduct(checkPoint,f.getNormal()) < 0) {
                 Vector p1 = f.getP1();
                 Vector p2 = f.getP2();
                 Vector p3 = f.getP3();
@@ -53,7 +51,6 @@ public class Renderer {
             v.copy(create2DShadow(v, distance));
             v.multiplyScalar(scale);
         }
-
         return toRenderFaces.toArray(new Face[0]);
     }
 
@@ -72,7 +69,7 @@ public class Renderer {
     }
 
     public static Matrix calcRotationMatrix( int axes1, int axes2, double angle){
-        Matrix rotate = MatrixCalc.getIdentityMatrix(4);
+        Matrix rotate = MatrixCalc.getIdentityMatrix(3);
         rotate.set(axes1, axes1, Math.cos(angle));
         rotate.set(axes1, axes2, -Math.sin(angle));
         rotate.set(axes2, axes1, Math.sin(angle));

@@ -13,31 +13,27 @@ import java.io.IOException;
 public class testMain {
 
     public static void main(String[] args) {
-        Vector camMatrix = new Vector(3);
-        camMatrix.set(0, -2);
-        Camera3D cam = new Camera3D(camMatrix);
-        Object3D o;
+        Vector camMtx = new Vector(3);
         Vector light = new Vector(3);
-        light.set(2, 1);
+        light.set(2, -1);
+        camMtx.set(2,-2);
+        Camera3D cam = new Camera3D(camMtx);
+        Object3D o;
         try {
-            o = new Object3D(new File("F:\\Bibliothek\\Desktop\\untitled.obj"));
-            Face[] toPrint = Renderer.getRendered(o, cam, light, 1);
+            o = new Object3D(new File("C:\\Users\\Nicolai\\Desktop\\cube.obj"));
+            o.rotate(1, 1.3709677437300323);
+            Face[] renderFaces = Renderer.getRendered(o, cam, light, 500);
+            for(Face f: renderFaces){
+                System.out.println("Face");
+                f.getP1().print();
+                f.getP2().print();
+                f.getP3().print();
+                System.out.println("normal");
+                f.getNormal().print();
+                System.out.println("light: " + f.getLightIntensity());
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
-        /*
-        Construct cube = CubeCalculator.createCube(3);
-
-        Construct[] allFaces = cube.get(2);
-        int counter = 0;
-        for (Construct f: allFaces){
-            System.out.println("Face: " + counter++);
-            Line[] lines = f.getLines();
-            for(Line l: lines){
-                l.printLine(5, 3);
-            }
-        }
-
-         */
     }
 }

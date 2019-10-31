@@ -9,7 +9,7 @@ public class VectorCalc {
 
     public static Vector crossProduct(Vector vec1, Vector vec2) {
         if (vec1.rows() != 3 || vec2.rows() != 3) {
-            throw new MatrixDontMatchException("the crossproduct is just defined 3x1 Vectors vec1.rows = " + vec1.rows() + " vec1.rows = " + vec2.rows());
+            throw new MatrixDontMatchException("the cross product is just defined 3x1 Vectors vec1.rows = " + vec1.rows() + " vec1.rows = " + vec2.rows());
         }
         Vector crossProd = new Vector(3);
         crossProd.set(0, vec1.get(1) * vec2.get(2) - (vec1.get(2) * vec2.get(1)));
@@ -61,5 +61,16 @@ public class VectorCalc {
         Vector vErg = mtxErg.convertToVector();
         vErg.transpose();
         return vErg;
+    }
+
+    public static Vector subtract(Vector v1, Vector v2){
+        if(v1.size() != v2.size()){
+            throw new MatrixDontMatchException("cant add with a  " + v1.size() + " dimensional and a " + v2.size() + " dimensional vector.");
+        }
+        Vector erg = new Vector(v1.size());
+        for(int i = 0; i < v1.size(); i++){
+            erg.set(i, v1.get(i) - v2.get(i));
+        }
+        return erg;
     }
 }

@@ -6,12 +6,15 @@ import matrixLibrary.matrix.Matrix;
 import matrixLibrary.matrix.Vector;
 import matrixLibrary.utils.MatrixCalc;
 import matrixLibrary.utils.VectorCalc;
+import org.apache.commons.lang3.ArrayUtils;
 import org.gui.Camera3D;
 import org.render3D.KompositumCube.Face;
 import org.render3D.KompositumCube.Line;
 import org.render3D.KompositumCube.Object3D;
 
+import java.io.*;
 import java.util.ArrayList;
+import java.util.List;
 
 public class HyperCube {
     //private static int distance = 2;
@@ -68,6 +71,7 @@ public class HyperCube {
             Vector temp = CubeCalculator.getShadow(p, 3, VectorCalc.getLength(cam.getVisionAxes()));
             p.copy(temp);
         }
+
         Construct[] allFaces = workerCube.get(2);
         ArrayList<Construct> allFacesToPrint = new ArrayList<>();
         for(Construct f: allFaces){
@@ -75,10 +79,11 @@ public class HyperCube {
             Vector onePoint = allLines[0].getP1().clone();
             onePoint.addFormula(new SubtractFormula(cam.getVisionAxes()));
             Vector normal = f.calculateNormalVector();
-            if(VectorCalc.dotProduct(normal,onePoint) <= 0) {
+            if(VectorCalc.dotProduct(normal, onePoint) <= 0) {
                 allFacesToPrint.add(f);
             }
         }
+
         ArrayList<Line> toPrintLines = new ArrayList<>();
         for(Construct f: allFacesToPrint){
             Line[] linesInF = f.getLines();
@@ -97,7 +102,6 @@ public class HyperCube {
         return toPrintLines.toArray(new Line[0]);
     }
 
-    /*
     public Face[] getToDrawFaces(Camera3D cam, Vector light) {
         Construct workerCube = cube.clone();
         Vector[] allPoints = workerCube.getAllPoints();
@@ -108,7 +112,6 @@ public class HyperCube {
             p.copy(temp);
         }
         Construct[] allFaces = workerCube.get(2);
-        ArrayList<Matrix> allPointsToDraw = new ArrayList<>();
         ArrayList<Face> allDrownFaces = new ArrayList<>();
         for(Construct f: allFaces){
             Line[] allLines = f.getLines();
@@ -129,8 +132,6 @@ public class HyperCube {
 
         return allDrownFaces.toArray(new Face[0]);
     }
-
-     */
 
     public Object3D getAsObject3D(Camera3D cam) {
         Construct workerCube = cube.clone();
@@ -153,7 +154,45 @@ public class HyperCube {
             newF = new Face(linesOfTheFace[2], linesOfTheFace[3], normal);
             allDrownFaces.add(newF);
         }
+        return new Object3D(allDrownFaces.toArray(new Face[0]), allPointsA.toArray(new Vector[0]), "Hypercupe");
+    }
 
-        return new Object3D(allDrownFaces, allPointsA, "Hypercupe");
+    public void saveAsObj(File location) throws IOException {
+        Vector[] allPoints = cube.getAllPoints();
+
+        Construct faces[] = cube.get(2);
+        List<Face> allFaces = new ArrayList<>();
+        for(Construct f: faces){
+            Line[] lines = f.getLines();
+            allFaces.add(new Face(lines[0].getP1(), lines[0].getP2(), lines[1].getP2()));
+            allFaces.add(new Face(lines[2].getP1(), lines[2].getP2(), lines[3].getP2()));
+        }
+        BufferedWriter writer = new BufferedWriter(new FileWriter(location));
+        writer.append("o Cube");
+        writer.newLine();
+        for(Vector point: allPoints){
+            writer.append("v ");
+            writer.append(String.valueOf(point.get(0))).append(" ");
+            writer.append(String.valueOf(point.get(1))).append(" ");
+            writer.append(String.valueOf(point.get(2)));
+            writer.newLine();
+        }
+        for(Face f: allFaces){
+            writer.append("f ");
+            writer.append(String.valueOf(indexOf(f.getP1(), allPoints)+1)).append(" ");
+            writer.append(String.valueOf(indexOf(f.getP2(), allPoints)+1)).append(" ");
+            writer.append(String.valueOf(indexOf(f.getP3(), allPoints)+1));
+            writer.newLine();
+        }
+        writer.flush();
+    }
+
+    private int indexOf(Vector point, Vector[] allPoints){
+        for(int i = 0; i < allPoints.length; i++){
+            if(allPoints[i].equals(point)){
+                return i;
+            }
+        }
+        return -1;
     }
 }
